@@ -36,7 +36,7 @@ Right Click ------- Occluded joint
 
 TAB --------- Current joint is not applicable for current image
 
-Any key -------- register the annotation and move to next joint
+Any key -------- register the annotation and move to next joint (only accept the last time you "left click point".)
 
 #### After all the joints are annotated the joint coordinates is written to .json file you input and next image is loaded.
 
