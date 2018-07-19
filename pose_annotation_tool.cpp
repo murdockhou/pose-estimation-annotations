@@ -20,6 +20,7 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 #include <string.h>
+#include <string>
 
 
 #ifdef WINDOWS
@@ -33,7 +34,7 @@
 using namespace cv;
 using namespace std;
 
-#define JOINTS 4
+#define JOINTS 14
 
 /* keyboard number */
 int ESC     = 27;
@@ -55,10 +56,20 @@ int r[2], g[2], b[2];
 
 char joints[JOINTS][20] =
 {
-    "head",
-    "neck",
-    "Rshoulder",
-    "Lshoulder"
+        "head",
+        "neck",
+   "right shoulder",
+   "right elbow",
+   "right hand",
+   "left shoulder",
+  "left elbow",
+ "left hand",
+  "right hip",
+  "left hip",
+ "right knee",
+   "left knee",
+   "right ankle",
+    "left ankle"
 };
 
 
@@ -123,8 +134,10 @@ int main(int argc, char **argv)
 
 
     FILE *fp_annotation = fopen(argv[2], "w");
-    fprintf(fp_annotation, "[{\n");
-
+    fprintf(fp_annotation, "[");
+    bool is_first = true;
+    string image_id = "123";
+    int count = 1;
 	while(!feof(fp_list))
 	{
 	    char filename[20];
@@ -156,6 +169,7 @@ int main(int argc, char **argv)
 		{
 			fprintf(stderr, "\nEXITING");
 			printf("\n[ESC] EXITING");
+            fprintf(fp_annotation, "}");
 			break;
 		}
         else
@@ -163,6 +177,8 @@ int main(int argc, char **argv)
 			fprintf(stderr, "\nProcessing : %s", filename);
 			printf("\n[Enter] Processing : %s", filename);
 
+			if (is_first) is_first = false;
+			else fprintf(fp_annotation, "},");
 
 			for(int j=0; j<JOINTS; )
 			{
@@ -174,6 +190,7 @@ int main(int argc, char **argv)
 				key_pressed = waitKey(0);
 
 				int occlusion = joint_points[current_joint][2];
+				cout << occlusion << endl;
 
 				if(key_pressed == TAB)
 				{
@@ -192,25 +209,27 @@ int main(int argc, char **argv)
 				{
 					circle(img, Point(joint_points[current_joint][0], joint_points[current_joint][1]), 10, Scalar(b[occlusion], g[occlusion], r[occlusion]), -1);
 					j++;
+					// 1 可见， 2 不可见 3 不在图内或不可推测
+					if (occlusion == 0) joint_points[current_joint][2] = 1;
+					else joint_points[current_joint][2] = 2;
 				}
 			}
-
             /* joints saving */
             /* json format writting */
-            fprintf(fp_annotation, "image_id\": \"%s\",",filename);
+            fprintf(fp_annotation, "{\"image_id\": \"%s\",",image_id.c_str());
+            image_id += std::to_string(count++);
             fprintf(fp_annotation, "\"keypoint_annotations\":{\"human1\":[");
-			for(int j=0; j<JOINTS; j++)
-			{
-			    if (j == JOINTS-1)
-					fprintf(fp_annotation, "%d, %d, %d",joint_points[j][0], joint_points[j][1], joint_points[j][2]);
-				else
-					fprintf(fp_annotation, "%d, %d, %d,",joint_points[j][0], joint_points[j][1], joint_points[j][2]);
+			for(int j=0; j<JOINTS; j++) {
+                if (j == JOINTS - 1)
+                    fprintf(fp_annotation, " %d, %d, %d", joint_points[j][0], joint_points[j][1], joint_points[j][2]);
+                else
+                    fprintf(fp_annotation, "%d, %d, %d,", joint_points[j][0], joint_points[j][1], joint_points[j][2]);
             }
-            fprintf(fp_annotation, "]}\n");
+            fprintf(fp_annotation, "]},\"human_annotations\": {\"human1\": [0, 0, 0, 0]}");
 		}
 	}
-
-	fprintf(fp_annotation, "}]");
+//"human_annotations": {"human2": [0, 27, 266, 851], "human1": [166, 92, 412, 807]}
+	fprintf(fp_annotation, "]");
     fclose(fp_annotation);
 	fclose(fp_list);
 	return 0;
