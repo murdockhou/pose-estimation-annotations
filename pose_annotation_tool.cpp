@@ -123,6 +123,7 @@ int main(int argc, char **argv)
 
 
     FILE *fp_annotation = fopen(argv[2], "w");
+    fprintf(fp_annotation, "[{\n");
 
 	while(!feof(fp_list))
 	{
@@ -194,19 +195,22 @@ int main(int argc, char **argv)
 				}
 			}
 
-
             /* joints saving */
             /* json format writting */
-            fprintf(fp_annotation, "{\n");
-            fprintf(fp_annotation, "\t \"image_path\": \"%s\",\n",filename);
+            fprintf(fp_annotation, "image_id\": \"%s\",",filename);
+            fprintf(fp_annotation, "\"keypoint_annotations\":{\"human1\":[");
 			for(int j=0; j<JOINTS; j++)
 			{
-			    fprintf(fp_annotation, "\t \"%s\": [ %d ,%d, %d ],\n",joints[j],joint_points[j][0], joint_points[j][1], joint_points[j][2]);
+			    if (j == JOINTS-1)
+					fprintf(fp_annotation, "%d, %d, %d",joint_points[j][0], joint_points[j][1], joint_points[j][2]);
+				else
+					fprintf(fp_annotation, "%d, %d, %d,",joint_points[j][0], joint_points[j][1], joint_points[j][2]);
             }
-            fprintf(fp_annotation, "}\n");
+            fprintf(fp_annotation, "]}\n");
 		}
 	}
 
+	fprintf(fp_annotation, "}]");
     fclose(fp_annotation);
 	fclose(fp_list);
 	return 0;
