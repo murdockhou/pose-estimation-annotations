@@ -56,20 +56,20 @@ int r[2], g[2], b[2];
 
 char joints[JOINTS][20] =
 {
+        "right shoulder",
+        "right elbow",
+        "right hand",
+        "left shoulder",
+        "left elbow",
+        "left hand",
+        "right hip",
+        "right knee",
+        "right ankle",
+        "left hip",
+        "left knee",
+        "left ankle",
         "head",
-        "neck",
-   "right shoulder",
-   "right elbow",
-   "right hand",
-   "left shoulder",
-  "left elbow",
- "left hand",
-  "right hip",
-  "left hip",
- "right knee",
-   "left knee",
-   "right ankle",
-    "left ankle"
+        "neck"
 };
 
 
